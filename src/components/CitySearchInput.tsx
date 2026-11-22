@@ -14,7 +14,7 @@ interface CitySearchInputProps {
 export const CitySearchInput: React.FC<CitySearchInputProps> = ({
   selectedLocation,
   onSelectLocation,
-  placeholder = 'Search any city globally (e.g. Delhi, Pune, London)...',
+  placeholder = 'Search any city globally (e.g. Delhi, New Delhi, London)...',
   compact = false,
 }) => {
   const [query, setQuery] = useState('');

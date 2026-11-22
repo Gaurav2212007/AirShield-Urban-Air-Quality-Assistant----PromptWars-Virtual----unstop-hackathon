@@ -25,8 +25,8 @@ export const DEMO_LOCATION: Location = {
 export const POPULAR_CITIES: Location[] = [
   DEMO_LOCATION,
   {
-    id: 'preset-pune-in',
-    name: 'Pune',
+    id: 'preset-New Delhi-in',
+    name: 'New Delhi',
     region: 'Metro',
     country: 'India',
     countryCode: 'IN',
