@@ -1,7 +1,8 @@
-# AirShield — Urban Air Quality Assistant
+## Live Demo (One-Click App + AI Chatbot)
+Launch the full working app directly in your browser:  
+**[Open AirShield Live App](https://airshield-urban-air-quality-assistant.ai.studio)**
 
-> **Know your air. Protect your people.**  
-> Built for PromptWars Virtual — Challenge 06: *"Build an Urban Air Quality Assistant to help families beat severe winter smog with personalized low-emission routines and indoor air hacks."*
+> **How to start:** Open the link above and click the **Explore Demo** button on the landing screen to access the live dashboard and **Air Coach** AI assistant.
 
 ---
 
