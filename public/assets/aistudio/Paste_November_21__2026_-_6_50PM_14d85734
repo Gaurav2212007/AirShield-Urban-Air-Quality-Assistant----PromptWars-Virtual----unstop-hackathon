@@ -1,0 +1,1780 @@
+You are a Principal AI Solutions Architect, Senior Full-Stack Engineer, UX Engineer, and Prompt Engineer. Build a COMPLETE, PRODUCTION-QUALITY, DEPLOYABLE web application in Google AI Studio Build Mode for the PromptWars Virtual — Challenge 06.
+
+PROJECT NAME:
+"AirShield" — Urban Air Quality Assistant
+
+PROBLEM STATEMENT:
+"Build an Urban Air Quality Assistant to help families beat severe winter smog with personalized low-emission routines and indoor air hacks."
+
+IMPORTANT:
+This is a competition submission. Optimize the implementation specifically for:
+1. Technical Merit
+2. Alignment with the Challenge Cause
+3. UI/UX Polish
+4. Innovation
+5. Code Quality
+6. Reliability and graceful failure
+7. Demonstrable real-world usefulness
+
+Do NOT build a toy/demo-looking application. Build something that looks and behaves like a polished production SaaS product.
+
+============================================================
+1. CORE PRODUCT VISION
+============================================================
+
+AirShield is a family-focused urban air-quality intelligence assistant.
+
+The user selects/searches their city and creates a Family Profile. The application obtains live air-quality data and hourly forecasts, combines that information with the family's vulnerabilities, home setup, and commute behavior, and uses Gemini to produce a personalized "Clean Air Action Plan."
+
+The application must answer:
+
+- How dangerous is the air right now?
+- When should my family go outside?
+- When should we avoid outdoor exposure?
+- What should we change inside our home?
+- What should we change while cooking?
+- How should we commute?
+- What should children/elderly/pregnant people/asthmatic users do differently?
+- What can we do for ₹0?
+- What should we prioritize if we have a small budget?
+- What should we do during the next few hours?
+- Can the user ask follow-up questions without repeatedly explaining their situation?
+
+The experience should feel like:
+"Your personal air-quality command center + family safety coach."
+
+Do NOT make the application merely display AQI numbers.
+
+============================================================
+2. TECHNOLOGY REQUIREMENTS
+============================================================
+
+Use:
+
+- React
+- TypeScript
+- Tailwind CSS
+- Vite-compatible architecture
+- Gemini server-side integration
+- Recharts for data visualization
+- Lucide React icons
+- Responsive mobile-first UI
+
+Use clean modular architecture.
+
+Required project structure should include, where appropriate:
+
+src/
+  components/
+  services/
+    aqiService.ts
+    geminiService.ts
+  hooks/
+  types/
+  utils/
+  data/
+  App.tsx
+  main.tsx
+
+Also create:
+
+README.md
+
+Do NOT put the entire application into one giant component.
+
+Use reusable components with clear responsibilities.
+
+Use TypeScript interfaces/types for:
+- Location
+- AQI observation
+- Hourly forecast
+- FamilyProfile
+- Vulnerability
+- HomeSetup
+- CommuteProfile
+- AirPlan
+- SafeWindow
+- IndoorHack
+- CommuteRecommendation
+- ChatMessage
+- Gemini response schemas
+
+Avoid unnecessary dependencies.
+
+============================================================
+3. REAL-TIME AIR QUALITY DATA — NO API KEY
+============================================================
+
+Use the FREE, KEYLESS Open-Meteo APIs.
+
+AIR QUALITY API:
+
+https://air-quality-api.open-meteo.com/v1/air-quality
+
+GEOCODING API:
+
+https://geocoding-api.open-meteo.com/v1/search
+
+The user must be able to search for ANY city globally.
+
+Examples:
+- Delhi
+- Pune
+- Mumbai
+- Beijing
+- Lahore
+- London
+- New York
+- Tokyo
+
+DO NOT require an Open-Meteo API key.
+
+DO NOT use mock data when the API is available.
+
+DO NOT require users to register for an external air-quality service.
+
+============================================================
+4. GEOCODING
+============================================================
+
+Implement a proper city search flow.
+
+When a user enters a city:
+
+1. Query Open-Meteo Geocoding API.
+2. Display matching locations.
+3. Show:
+   - City
+   - Administrative region/state where available
+   - Country
+   - Country code
+4. Let the user select a location.
+5. Store:
+   - latitude
+   - longitude
+   - city name
+   - region
+   - country
+6. Use latitude/longitude for the Air Quality API.
+
+Debounce city-search requests.
+
+Handle:
+- Empty searches
+- No results
+- Network errors
+- Slow responses
+- API errors
+
+Never crash the application because geocoding failed.
+
+============================================================
+5. AIR QUALITY API DATA
+============================================================
+
+Fetch real hourly air-quality data from Open-Meteo.
+
+Request the relevant available variables necessary to support:
+
+- PM2.5
+- PM10
+- US AQI
+- Ozone / O3
+- Nitrogen Dioxide / NO2
+
+Also request hourly forecast data.
+
+Use an appropriate forecast horizon so the application can show at least the next 24 hours, preferably 48 hours if practical.
+
+Use the current local time associated with the selected location when determining the current reading.
+
+Do NOT hard-code AQI values when live data is available.
+
+Normalize the API response into an internal typed structure.
+
+Handle missing/null measurements gracefully.
+
+Clearly indicate:
+- Live Data
+- Demo/Fallback Data
+
+Never silently present fallback data as live data.
+
+============================================================
+6. MANDATORY OFFLINE / FALLBACK / DEMO MODE
+============================================================
+
+This is mandatory.
+
+The application MUST remain functional if:
+
+- User is offline
+- Open-Meteo is unavailable
+- API request times out
+- API returns malformed data
+- API rate-limits
+- Geocoding fails
+- Browser network request fails
+
+Implement a realistic fallback dataset representing severe winter smog.
+
+Example fallback scenario:
+
+US AQI: 340
+PM2.5: 210 µg/m³
+PM10: 330 µg/m³
+Ozone: 42 µg/m³
+NO2: 78 µg/m³
+
+Include realistic hourly variation showing a winter inversion pattern.
+
+The fallback data must be clearly labelled:
+
+"Demo / Offline Data"
+
+and never falsely labelled "Live."
+
+Provide a visible "Try Live Data Again" action when fallback mode is active.
+
+If the API fails after the user has previously received valid live data, prefer keeping the last valid data rather than immediately replacing it.
+
+Persist the last valid city/profile locally where appropriate.
+
+============================================================
+7. AQI INTERPRETATION
+============================================================
+
+Create a centralized AQI severity utility.
+
+Use US AQI categories:
+
+0–50:
+Good
+
+51–100:
+Moderate
+
+101–150:
+Unhealthy for Sensitive Groups
+
+151–200:
+Unhealthy
+
+201–300:
+Very Unhealthy
+
+301–500:
+Hazardous
+
+Each severity should have:
+- Label
+- Description
+- Appropriate visual treatment
+- Icon
+- Guidance
+
+Do not rely exclusively on color.
+
+Always include text labels because of accessibility.
+
+When AQI is severe, the interface should visually communicate urgency without becoming alarmist.
+
+============================================================
+8. FAMILY PROFILE CONFIGURATOR
+============================================================
+
+Create a polished multi-step or sectioned Family Profile configurator.
+
+Required fields:
+
+LOCATION:
+- City / Location
+
+HOUSEHOLD VULNERABILITIES:
+Allow multiple selections:
+- Toddlers / Kids
+- Elderly
+- Asthma / COPD
+- Pregnant Women
+- Pets
+- None / No known special vulnerability
+
+HOME SETUP:
+- Air Purifier:
+  - Available
+  - None
+
+- Cooking Fuel:
+  - Gas / LPG
+  - Induction / Electric
+  - Other
+
+- Window Sealing:
+  - Poor
+  - Average
+  - Good
+
+- Balcony:
+  - Yes
+  - No
+
+- Indoor Plants:
+  - Yes
+  - No
+
+COMMUTE MODE:
+- Walking / Two-Wheeler
+- Public Transit
+- Car
+- Work From Home
+
+Allow users to edit their profile later.
+
+Persist the Family Profile using localStorage.
+
+Do not ask for unnecessary personally identifiable information.
+
+============================================================
+9. PERSONALIZATION ENGINE
+============================================================
+
+The entire application should be personalized using:
+
+LIVE AQI DATA
++
+HOURLY FORECAST
++
+FAMILY PROFILE
++
+HOME SETUP
++
+COMMUTE MODE
+
+Do NOT simply generate generic pollution advice.
+
+Examples:
+
+If:
+- AQI is hazardous
+- Kids are present
+- No purifier
+- Poor window sealing
+
+then the recommendations should emphasize:
+- minimizing outdoor exposure
+- sealing infiltration points
+- creating a cleaner indoor room
+- avoiding unnecessary opening of windows
+- practical low/no-cost measures
+
+If:
+- Gas/LPG cooking is selected
+
+then address cooking emissions and ventilation carefully.
+
+If:
+- Work From Home is selected
+
+then commute recommendations should be replaced by low-exposure workday routines.
+
+If:
+- Asthma/COPD is selected
+
+then recommendations should prioritize minimizing exposure and following existing medical action plans.
+
+Never invent medical diagnoses or prescribe medication.
+
+For health-sensitive situations, include an unobtrusive disclaimer:
+"AirShield provides general environmental guidance, not medical diagnosis or treatment. Follow your clinician's advice and your existing action plan."
+
+============================================================
+10. GEMINI INTEGRATION
+============================================================
+
+Use Gemini server-side.
+
+Preferred model:
+
+gemini-2.5-flash
+
+If that model is unavailable in the current AI Studio environment, use the currently available Gemini Flash model exposed by the environment, preferably gemini-3-flash-preview if supported.
+
+Do NOT expose API keys or secrets in client-side source code.
+
+Use the environment's server-side Gemini integration/secrets mechanism.
+
+Create:
+
+services/geminiService.ts
+
+The Gemini service must receive structured context containing:
+
+- Current AQI
+- PM2.5
+- PM10
+- Ozone
+- NO2
+- Hourly forecast
+- Location
+- Current local time
+- Family vulnerabilities
+- Home setup
+- Cooking fuel
+- Window sealing
+- Commute mode
+
+============================================================
+11. STRUCTURED JSON OUTPUT — MANDATORY
+============================================================
+
+Do NOT depend on free-form Gemini text for core application logic.
+
+Use Gemini Structured Output / JSON Schema.
+
+The model must return a strongly typed object matching a schema similar to:
+
+{
+  "overallAssessment": {
+    "headline": "string",
+    "summary": "string",
+    "priority": "low | moderate | high | critical"
+  },
+  "safeWindows": [
+    {
+      "start": "ISO datetime",
+      "end": "ISO datetime",
+      "aqi": "number",
+      "label": "string",
+      "reason": "string",
+      "recommendedActivities": ["string"]
+    }
+  ],
+  "lockdownHours": [
+    {
+      "start": "ISO datetime",
+      "end": "ISO datetime",
+      "aqi": "number",
+      "reason": "string",
+      "avoid": ["string"]
+    }
+  ],
+  "indoorHacks": [
+    {
+      "title": "string",
+      "cost": "free | low | medium",
+      "difficulty": "easy | moderate",
+      "steps": ["string"],
+      "whyItHelps": "string",
+      "personalizedReason": "string",
+      "safetyNote": "string"
+    }
+  ],
+  "commuteRecommendations": [
+    {
+      "title": "string",
+      "priority": "high | medium | low",
+      "action": "string",
+      "reason": "string"
+    }
+  ],
+  "microHabits": [
+    {
+      "title": "string",
+      "action": "string",
+      "benefit": "string"
+    }
+  ],
+  "topPriorities": [
+    {
+      "rank": "number",
+      "action": "string",
+      "reason": "string"
+    }
+  ]
+}
+
+Use actual JSON Schema enforcement rather than merely telling Gemini to "return JSON."
+
+Validate Gemini responses at runtime.
+
+If parsing or validation fails:
+- Retry safely if appropriate
+- Otherwise use a deterministic local fallback recommendation engine
+- Never crash the UI
+
+============================================================
+12. IMPORTANT: SAFE-WINDOW INTELLIGENCE
+============================================================
+
+The application must not blindly assume that a particular clock hour is always safe.
+
+Analyze the actual hourly forecast.
+
+Use the forecast to identify:
+
+- Lowest-AQI windows
+- Rising-AQI periods
+- Peak pollution periods
+- Sustained hazardous periods
+- Potential winter inversion patterns
+
+Create a visual 24-hour timeline.
+
+Each hour should show:
+- Time
+- AQI
+- Severity
+- PM2.5
+- Recommended status
+
+Statuses should include concepts such as:
+
+"Best Window"
+"Use Caution"
+"Limit Exposure"
+"Lockdown Hour"
+
+The model should explain WHY a particular window is recommended.
+
+If every hour is unhealthy/hazardous, do not fabricate a "safe" period.
+
+Instead say something like:
+"No genuinely clean outdoor window is available in the next 24 hours. The least-polluted period is X–Y, but outdoor exposure should still be minimized."
+
+This is critical for technical credibility.
+
+============================================================
+13. INDOOR AIR HACKS MODULE
+============================================================
+
+Create a prominent module:
+
+"Indoor Air Defense"
+
+Provide:
+
+A) ₹0 / FREE HACKS
+
+Examples where contextually appropriate:
+- Draft-point inspection
+- Wet-towel temporary draft sealing
+- Door-gap sealing
+- Closing unnecessary openings during peak pollution
+- Creating one cleaner indoor room
+- Avoiding indoor smoke sources
+- Timing ventilation strategically when outdoor AQI is lower
+
+B) LOW-BUDGET OPTIONS
+
+Examples:
+- Door/window sealing materials
+- Basic filtration improvements
+- DIY box-fan filtration concept
+
+If mentioning a DIY box-fan filter, include safety instructions:
+- Use an appropriate high-efficiency HVAC filter where available
+- Ensure the filter is securely attached
+- Do not block the fan motor
+- Do not use damaged electrical equipment
+- Keep the assembly away from water
+- Never imply that it is equivalent to a certified air purifier
+
+C) EXISTING PURIFIER USERS
+
+Give guidance on:
+- Running purifier during high-pollution periods
+- Prioritizing occupied rooms
+- Filter maintenance
+- Door/window strategy
+
+D) COOKING
+
+If Gas/LPG is selected:
+- Address combustion emissions
+- Recommend using an appropriate exhaust/ventilation strategy when outdoor conditions permit
+- Avoid creating harmful indoor smoke
+- Never advise unsafe ventilation practices
+
+Do not give dangerous instructions involving gas appliances.
+
+============================================================
+14. COMMUTE & MICRO-HABIT MODULE
+============================================================
+
+Create:
+
+"Low-Emission Commute"
+
+Personalize according to commute mode.
+
+Walking / Two-Wheeler:
+- Minimize exposure during peak pollution
+- Prefer lower-traffic routes when practical
+- Reduce unnecessary outdoor time
+
+Public Transit:
+- Optimize timing
+- Avoid waiting outdoors unnecessarily
+- Use lower-exposure waiting locations when practical
+
+Car:
+- Reduce unnecessary idling
+- Keep windows closed during high roadside pollution when appropriate
+- Maintain vehicle ventilation appropriately
+
+Work From Home:
+- Remove commute advice
+- Focus on indoor exposure reduction
+- Use breaks strategically around lower-AQI windows
+
+Also include:
+
+"Micro-Habits"
+
+Examples:
+- Avoid unnecessary idling
+- Avoid burning waste
+- Avoid indoor smoking/incense during severe pollution
+- Avoid adding unnecessary combustion sources
+- Batch errands during better exposure windows
+- Reduce unnecessary outdoor exposure during hazardous periods
+
+The application should emphasize that individual emission reduction helps the community, not merely the individual.
+
+============================================================
+15. ASK THE AIR COACH
+============================================================
+
+Build a persistent AI chat experience.
+
+Use a side drawer on desktop and a full-screen/modal experience on mobile.
+
+Name it:
+
+"Ask the Air Coach"
+
+The assistant automatically receives:
+
+- Current city
+- Current AQI
+- Current pollutant levels
+- Hourly forecast
+- Family profile
+- Current plan
+
+The user should NOT need to repeat this information.
+
+Example questions:
+
+"Should I let my kids play outside at 4 PM?"
+
+"What should I do if I don't have an air purifier?"
+
+"Should I open my windows tonight?"
+
+"What indoor plants actually help?"
+
+"Is it better to walk or take the bus today?"
+
+"What should I prioritize right now?"
+
+The chat should answer based on the current data.
+
+Do not let the chat invent current AQI data.
+
+For every answer involving current air quality, ground the answer in the currently loaded dataset.
+
+Include a small context indicator such as:
+
+"Using Pune • AQI 187 • Updated 4 min ago"
+
+The chat must gracefully handle API/model failures.
+
+Provide suggested prompt chips to make the feature discoverable.
+
+============================================================
+16. IMPORTANT SAFETY RULES FOR GEMINI
+============================================================
+
+The Gemini system instruction must explicitly enforce:
+
+1. Never fabricate AQI measurements.
+2. Never claim a period is "safe" if the supplied forecast does not support it.
+3. Never invent weather or pollutant data.
+4. Use only supplied air-quality data for current conditions.
+5. Clearly distinguish general guidance from medical advice.
+6. Never diagnose diseases.
+7. Never recommend medication dosage.
+8. For asthma/COPD/pregnancy/children/elderly users, emphasize exposure reduction and following clinician guidance.
+9. Never recommend dangerous modifications to gas appliances.
+10. Never recommend burning, chemical treatment, ozone generators, or unsafe DIY methods as air-cleaning solutions.
+11. Never claim indoor plants meaningfully replace filtration or ventilation.
+12. Prefer practical, low-cost, evidence-aligned actions.
+13. If no clean outdoor window exists, explicitly state that.
+14. Do not create false precision.
+
+============================================================
+17. DASHBOARD DESIGN
+============================================================
+
+Create a premium "Clean Air / Atmospheric Telemetry" visual design.
+
+The UI should feel like a combination of:
+
+- Modern climate-tech dashboard
+- Health intelligence platform
+- Atmospheric monitoring console
+- Consumer SaaS
+
+Do NOT make it look like a generic admin dashboard.
+
+Use:
+
+- Tailwind CSS
+- Lucide icons
+- Recharts
+- Cards
+- Soft atmospheric gradients
+- High contrast
+- Clear typography
+- Strong hierarchy
+- Subtle glass/blur effects where appropriate
+- Responsive layouts
+- Accessible interactions
+
+Avoid excessive neon/cyberpunk styling.
+
+The design should be serious, trustworthy, calm, and modern.
+
+============================================================
+18. DASHBOARD LAYOUT
+============================================================
+
+Desktop:
+
+LEFT / MAIN AREA:
+
+Header:
+- AirShield logo/wordmark
+- Location selector
+- Data status
+- Last updated
+
+Hero AQI card:
+- Current AQI
+- Severity
+- PM2.5
+- PM10
+- O3
+- NO2
+- Short interpretation
+- Live/Demo indicator
+
+Below:
+
+24-hour Air Quality Forecast chart
+
+Use Recharts.
+
+Show:
+- AQI line/area
+- Threshold indicators if practical
+- Hover tooltip
+- Current hour marker
+- Time labels
+
+Then:
+
+"Your Family's Action Plan"
+
+Show:
+- Top 3 priorities
+- Next best outdoor window
+- Current lockdown status
+- Personalized recommendation
+
+Then split:
+
+Indoor Air Defense
++
+Low-Emission Commute
+
+Then:
+
+Hourly timeline
+
+Then:
+
+Micro-Habits
+
+RIGHT SIDEBAR / SECONDARY PANEL:
+
+Family Profile summary
+
+"Ask the Air Coach"
+
+On mobile:
+- Stack everything vertically
+- Use sticky bottom navigation or floating Air Coach button if appropriate
+- Convert side drawer to full-screen modal/drawer
+
+============================================================
+19. AQI HERO CARD
+============================================================
+
+The hero card should be the strongest visual element.
+
+Example conceptual hierarchy:
+
+AQI 340
+HAZARDOUS
+
+"Outdoor exposure should be minimized."
+
+PM2.5
+210 µg/m³
+
+PM10
+330 µg/m³
+
+O₃
+42 µg/m³
+
+NO₂
+78 µg/m³
+
+Include a timestamp.
+
+Do not hard-code these exact values in the live UI; they are examples for fallback/demo mode.
+
+============================================================
+20. FORECAST CHART
+============================================================
+
+Build an interactive Recharts chart.
+
+Requirements:
+
+- ResponsiveContainer
+- Tooltip
+- Legend where useful
+- Accessible labels
+- AQI trend
+- Current-hour marker
+- Visual severity context
+- Hover shows:
+  - Time
+  - AQI
+  - PM2.5
+  - PM10
+
+Do not overload the chart.
+
+Below the chart, show an interpretation:
+
+"Pollution is expected to rise sharply after sunset."
+
+or:
+
+"The cleanest available window is 11:00–13:00, but AQI remains unhealthy."
+
+These statements must be generated from actual data.
+
+============================================================
+21. HOURLY TIMELINE
+============================================================
+
+Create a highly polished horizontal timeline.
+
+Each hour:
+- Clock time
+- AQI
+- Severity
+- PM2.5
+- Status
+
+Use horizontally scrollable cards on mobile.
+
+Highlight:
+- Current hour
+- Best available window
+- Highest pollution period
+
+Include clear labels.
+
+============================================================
+22. FAMILY PROFILE UX
+============================================================
+
+Create a dedicated profile view accessible from the dashboard.
+
+Use:
+- Chips
+- Toggle cards
+- Radio groups
+- Icons
+- Progress indicator if multi-step
+
+Do not create an intimidating long form.
+
+Suggested steps:
+
+1. Location
+2. Family
+3. Home
+4. Commute
+5. Review
+
+At the end show:
+
+"Your AirShield profile is ready."
+
+Then generate/update the personalized plan.
+
+============================================================
+23. ONBOARDING
+============================================================
+
+First-time users should see a polished onboarding screen.
+
+Headline:
+
+"Know your air. Protect your people."
+
+Subtitle:
+
+"AirShield turns live pollution data into a personalized low-exposure routine for your family."
+
+Primary CTA:
+
+"Build My AirShield Plan"
+
+Secondary option:
+
+"Explore Demo"
+
+The Explore Demo button should activate the fallback severe-winter-smog dataset immediately.
+
+This makes the application easy for judges to evaluate without requiring an API to work first.
+
+============================================================
+24. DEMO MODE
+============================================================
+
+Create a strong demo experience.
+
+The app must have a clearly visible:
+
+"Demo Mode"
+
+control.
+
+Demo mode should load:
+
+- Severe winter smog
+- AQI approximately 340
+- PM2.5 approximately 210 µg/m³
+- Elevated PM10
+- Realistic hourly pollution curve
+- Example city such as Delhi
+- Example family profile
+
+The judge should be able to experience the complete product without waiting for external APIs.
+
+But clearly label the data:
+
+"DEMO DATA — Not live"
+
+Do not misrepresent it as real-time data.
+
+============================================================
+25. DATA FRESHNESS
+============================================================
+
+Show:
+
+"Updated X minutes ago"
+
+when real data is loaded.
+
+Also show:
+
+"Live • Open-Meteo"
+
+or:
+
+"Demo / Offline"
+
+Use a small status indicator.
+
+Add a refresh button.
+
+Prevent excessive repeated API calls.
+
+Cache recent API responses appropriately in memory/localStorage where reasonable.
+
+============================================================
+26. LOADING STATES
+============================================================
+
+Implement skeleton loaders for:
+
+- AQI hero
+- Pollutant cards
+- Forecast chart
+- Timeline
+- AI plan
+- Family profile dependent sections
+
+Do not freeze the entire page while one component loads.
+
+For example:
+The AQI card may load while the Family Profile panel remains usable.
+
+============================================================
+27. ERROR HANDLING
+============================================================
+
+Implement:
+
+- React error boundary
+- API error states
+- Gemini error states
+- Invalid JSON handling
+- Empty-state UI
+- Network offline detection where practical
+- Retry controls
+- Fallback data
+
+Never show:
+- blank screen
+- unhandled exception
+- "undefined"
+- raw API errors
+- raw stack traces
+
+Human-friendly error examples:
+
+"Live air data is temporarily unavailable. AirShield has switched to its offline dataset so you can still explore the experience."
+
+"Air Coach is temporarily unavailable. Your personalized dashboard remains available."
+
+============================================================
+28. ACCESSIBILITY
+============================================================
+
+Implement:
+
+- Semantic HTML
+- Keyboard navigation
+- Focus states
+- ARIA labels where necessary
+- Sufficient contrast
+- Do not use color as the only severity indicator
+- Screen-reader-friendly buttons
+- Reduced-motion consideration
+
+Charts should have textual context.
+
+============================================================
+29. RESPONSIVE DESIGN
+============================================================
+
+Must work beautifully at:
+
+- 320px mobile
+- 375px mobile
+- 414px mobile
+- Tablet
+- Laptop
+- Large desktop
+
+No horizontal page overflow.
+
+Do not merely shrink the desktop layout.
+
+Reorganize content intelligently for mobile.
+
+============================================================
+30. LOCALIZATION / UNITS
+============================================================
+
+Use:
+
+- µg/m³ for pollutant concentrations
+- AQI as US AQI
+- Local time for the selected location
+
+Clearly label AQI standard as:
+
+"US AQI"
+
+Do not confuse US AQI with Indian AQI.
+
+============================================================
+31. INNOVATION FEATURES
+============================================================
+
+Add these polished features if they can be implemented reliably:
+
+A) "AirShield Score"
+
+Create a simple household readiness score based on:
+- AQI exposure risk
+- Vulnerability
+- Home setup
+- Behavioral readiness
+
+Make clear that it is a product-generated readiness indicator, not a medical score.
+
+Example:
+
+"AirShield Readiness: 72/100"
+
+Explain why.
+
+B) "Next Best Action"
+
+At all times show one concise recommendation:
+
+"NEXT BEST ACTION"
+
+Example:
+"Keep windows closed for the next 2 hours and run the purifier in the bedroom."
+
+This should change with live conditions.
+
+C) "Why This Matters"
+
+Allow users to expand the reasoning behind recommendations.
+
+D) "Cost-to-Impact"
+
+Tag actions as:
+- ₹0
+- Low cost
+- Medium cost
+
+E) "Exposure Budget"
+
+Create a conceptual daily exposure budget indicator.
+
+Do NOT present it as a medically validated metric.
+
+Label it clearly:
+
+"AirShield Exposure Guidance"
+
+Use it only as a behavioral planning visualization.
+
+============================================================
+32. DETERMINISTIC FALLBACK RECOMMENDATION ENGINE
+============================================================
+
+Do not rely entirely on Gemini.
+
+Implement a lightweight deterministic fallback recommendation engine.
+
+If Gemini fails, generate useful recommendations based on:
+
+AQI severity
++
+PM2.5
++
+time
++
+family vulnerability
++
+home setup
++
+commute
+
+This ensures the dashboard remains useful.
+
+Examples:
+
+If AQI >= 301:
+- Strong outdoor exposure reduction recommendation
+
+If AQI >= 201:
+- Limit unnecessary outdoor exposure
+
+If no purifier:
+- Prioritize one cleaner indoor room
+- Reduce indoor pollution sources
+- Seal obvious infiltration points
+
+If kids are present:
+- Emphasize avoiding prolonged outdoor activity during high AQI
+
+If asthma/COPD:
+- Emphasize existing medical action plan and exposure reduction
+
+============================================================
+33. AIR COACH CHAT ARCHITECTURE
+============================================================
+
+Chat should maintain:
+
+messages[]
+
+Each user question should be sent with compact contextual state:
+
+{
+ location,
+ currentAirQuality,
+ hourlyForecast,
+ familyProfile,
+ currentPlan
+}
+
+Do not send unnecessary historical chat context indefinitely.
+
+Keep the context window efficient.
+
+Add:
+
+Clear Chat
+
+Suggested Questions
+
+Loading typing state
+
+Error retry
+
+Timestamp
+
+The assistant should be concise and actionable.
+
+============================================================
+34. GEMINI PROMPTING STRATEGY
+============================================================
+
+Create high-quality system prompts.
+
+Gemini should act as:
+
+"An evidence-aligned urban air-quality planning assistant."
+
+It should:
+
+1. Analyze the supplied measurements.
+2. Analyze the forecast.
+3. Detect pollution peaks.
+4. Identify least-polluted periods.
+5. Account for family vulnerabilities.
+6. Account for home conditions.
+7. Account for commute.
+8. Prioritize zero-cost interventions.
+9. Avoid unsupported claims.
+10. Never fabricate data.
+11. Explain uncertainty.
+12. Avoid medical diagnosis.
+
+Do not ask Gemini to calculate things that can safely be calculated in TypeScript.
+
+Perform deterministic calculations such as:
+- AQI category
+- min/max AQI
+- average AQI
+- best available window
+- worst window
+- trend direction
+
+in application code.
+
+Use Gemini primarily for:
+- personalization
+- reasoning
+- prioritization
+- natural-language explanations
+- tailored action plans
+
+This improves reliability and technical merit.
+
+============================================================
+35. CODE QUALITY
+============================================================
+
+Use:
+
+- Strict TypeScript
+- Clear interfaces
+- Small reusable functions
+- No duplicated logic
+- No giant components
+- No hard-coded secrets
+- No console spam
+- No dead code
+- No unnecessary libraries
+- No placeholder components
+- No TODO comments for essential functionality
+
+Use meaningful naming.
+
+Keep API code separate from UI code.
+
+Keep Gemini prompt construction separate from rendering.
+
+Create utility functions for:
+- AQI category
+- date formatting
+- forecast analysis
+- severity
+- fallback generation
+- data normalization
+
+============================================================
+36. SECURITY
+============================================================
+
+Do NOT expose Gemini API credentials in the browser.
+
+Do NOT hard-code secrets.
+
+Do not store sensitive family information remotely.
+
+Keep Family Profile local to the browser unless absolutely required.
+
+Sanitize user chat input before inserting into UI.
+
+Do not use dangerouslySetInnerHTML for model output.
+
+Render AI responses safely as plain text / controlled Markdown if needed.
+
+Do not execute model-generated code.
+
+============================================================
+37. README.MD
+============================================================
+
+Create a comprehensive README.md.
+
+It must document:
+
+1. Product overview
+2. Challenge alignment
+3. Architecture
+4. Tech stack
+5. Directory structure
+6. Open-Meteo integration
+7. Geocoding flow
+8. Gemini integration
+9. Structured JSON schema strategy
+10. Prompting strategy
+11. Deterministic fallback engine
+12. Demo mode
+13. Error handling
+14. Data flow
+15. Security considerations
+16. Accessibility
+17. Local development
+18. Environment variables/secrets required for Gemini
+19. Deployment instructions
+20. Limitations
+21. Medical disclaimer
+22. Future improvements
+
+Include an architecture diagram in Mermaid if useful.
+
+Example data flow:
+
+User
+↓
+Location Search
+↓
+Open-Meteo Geocoding
+↓
+Coordinates
+↓
+Open-Meteo Air Quality
+↓
+Normalized AQI Dataset
+↓
+Deterministic Forecast Analysis
+↓
+Family Profile
+↓
+Gemini Structured Output
+↓
+Personalized AirShield Plan
+↓
+Dashboard + Air Coach
+
+============================================================
+38. README PROMPTING DOCUMENTATION
+============================================================
+
+Document how Gemini is grounded.
+
+Explicitly explain:
+
+"Live measurements and forecasts are supplied by the application. Gemini is not allowed to invent current air-quality values."
+
+Explain why structured output is used.
+
+Explain why deterministic calculations are performed outside Gemini.
+
+Explain fallback behavior.
+
+This will help technical judges understand the architecture.
+
+============================================================
+39. VISUAL POLISH
+============================================================
+
+Add subtle micro-interactions:
+
+- Card hover
+- Smooth transitions
+- Loading shimmer
+- Timeline selection
+- Chart tooltip
+- Drawer transitions
+- Button feedback
+- Profile completion feedback
+
+Do NOT over-animate.
+
+Use consistent spacing.
+
+Use a professional type scale.
+
+Use icons from Lucide.
+
+Avoid random emojis throughout the UI.
+
+If icons are used, use them consistently.
+
+============================================================
+40. EMPTY STATES
+============================================================
+
+Handle:
+
+No city selected:
+"Choose a city to see your air."
+
+No forecast:
+"Hourly forecast unavailable."
+
+No family profile:
+"Build your family profile to unlock personalized guidance."
+
+No chat messages:
+"Ask Air Coach anything about today's air."
+
+============================================================
+41. JUDGING / DEMO FLOW
+============================================================
+
+Optimize the application so a judge can understand the product within 30 seconds.
+
+The ideal flow:
+
+1. Landing page
+2. Click "Explore Demo"
+3. Dashboard loads immediately
+4. Judge sees AQI 340 / Hazardous
+5. Forecast chart shows pollution pattern
+6. Personalized Family Plan is visible
+7. Indoor Air Defense gives ₹0 actions
+8. Safe-window timeline identifies least-bad periods
+9. AirShield Readiness score explains household risk
+10. Judge opens Air Coach
+11. Judge asks:
+   "Should my kids play outside at 4 PM?"
+12. AI answers using the displayed data/profile
+13. Judge opens Family Profile
+14. Judge changes purifier status
+15. Plan updates accordingly
+
+Make this flow exceptionally smooth.
+
+============================================================
+42. DEMO PROFILE
+============================================================
+
+For Demo Mode, use a fictional example profile:
+
+Location:
+Delhi, India
+
+Vulnerabilities:
+- Kids
+- Elderly
+
+Home:
+- No air purifier
+- Gas/LPG
+- Poor window sealing
+- Balcony
+- Indoor plants
+
+Commute:
+- Public Transit
+
+Do not claim this represents a real user's household.
+
+============================================================
+43. DATA VISUALIZATION
+============================================================
+
+Use a visually intuitive AQI trend.
+
+The chart should communicate:
+
+- Current pollution
+- Future pollution
+- Peak pollution
+- Lowest pollution
+- Hazardous periods
+
+Use severity-aware visual treatment while preserving accessibility.
+
+Create a small AQI legend.
+
+============================================================
+44. PERFORMANCE
+============================================================
+
+Optimize:
+
+- Avoid unnecessary API calls
+- Debounce geocoding
+- Memoize expensive calculations
+- Avoid excessive re-renders
+- Lazy-load noncritical UI if appropriate
+- Keep Gemini prompts compact
+- Cache normalized forecast data
+
+The initial dashboard should feel fast.
+
+============================================================
+45. TESTABILITY
+============================================================
+
+Create pure functions that can easily be tested for:
+
+- AQI categorization
+- Best-window calculation
+- Worst-window calculation
+- Trend detection
+- Family personalization rules
+- Fallback generation
+- API normalization
+
+Do not make all logic dependent on React components.
+
+============================================================
+46. FINAL IMPLEMENTATION REQUIREMENT
+============================================================
+
+Build the entire working application now.
+
+Do not merely provide:
+- an architecture proposal
+- pseudocode
+- wireframes
+- placeholder components
+- TODO lists
+- explanations of what could be built
+
+Actually implement the application.
+
+The generated code must compile.
+
+Fix TypeScript errors.
+
+Fix import errors.
+
+Fix incorrect API assumptions.
+
+Fix React rendering issues.
+
+Fix responsive layout issues.
+
+Ensure all buttons have working behavior.
+
+Ensure all major navigation flows work.
+
+Ensure the fallback/demo mode works even without external APIs.
+
+Ensure the application can start successfully.
+
+============================================================
+47. FINAL QUALITY-CONTROL PASS
+============================================================
+
+Before considering the implementation complete, perform a mental production-readiness audit covering:
+
+BUILD:
+- TypeScript compilation
+- Imports
+- Component references
+- Environment variables
+- API calls
+
+DATA:
+- Geocoding
+- Open-Meteo AQI
+- Forecast normalization
+- Missing values
+- API failure
+- Offline mode
+
+AI:
+- Gemini server-side
+- Structured JSON
+- Schema validation
+- Prompt grounding
+- Fallback recommendations
+- Chat context
+
+UX:
+- First-time onboarding
+- Demo mode
+- Profile editing
+- Loading states
+- Error states
+- Mobile layout
+- Accessibility
+
+SECURITY:
+- No client-side secrets
+- Safe AI output rendering
+- No unsafe instructions
+
+DOCUMENTATION:
+- README complete
+- Architecture documented
+- Prompt strategy documented
+- Setup documented
+
+Do not finish with obvious errors.
+
+============================================================
+48. MOST IMPORTANT PRODUCT PRINCIPLE
+============================================================
+
+AirShield must NOT be an "AQI dashboard with an AI chatbot attached."
+
+It must be an ACTION-ORIENTED FAMILY AIR-QUALITY OPERATING SYSTEM.
+
+Every major piece of data should answer:
+
+"So what should this family do now?"
+
+Examples:
+
+AQI:
+→ "What does this mean for us?"
+
+Forecast:
+→ "When should we go outside?"
+
+Family profile:
+→ "Who needs extra protection?"
+
+Home setup:
+→ "What can we change indoors?"
+
+Commute:
+→ "How should we travel?"
+
+AI:
+→ "What should we prioritize?"
+
+Chat:
+→ "What should I do in my specific situation?"
+
+============================================================
+49. FINAL UI COPY PRINCIPLES
+============================================================
+
+Use human language.
+
+Prefer:
+
+"Air is hazardous right now."
+
+instead of:
+
+"Environmental particulate concentration exceeds threshold."
+
+Prefer:
+
+"Keep outdoor time short for the next 3 hours."
+
+instead of:
+
+"Minimize exposure during elevated concentration intervals."
+
+Prefer:
+
+"Next best action"
+
+instead of:
+
+"Recommended intervention."
+
+Keep technical detail available through expandable explanations.
+
+============================================================
+50. COMPLETION CRITERIA
+============================================================
+
+The application is complete only when all of the following exist and work:
+
+[ ] Global city search
+[ ] Open-Meteo geocoding
+[ ] Open-Meteo live AQI
+[ ] PM2.5
+[ ] PM10
+[ ] O3
+[ ] NO2
+[ ] Hourly forecast
+[ ] AQI severity engine
+[ ] Demo/offline fallback
+[ ] Family Profile
+[ ] Vulnerability personalization
+[ ] Home setup personalization
+[ ] Commute personalization
+[ ] Personalized AirShield Plan
+[ ] Safe-window timeline
+[ ] Lockdown hours
+[ ] Indoor Air Defense
+[ ] Zero-cost hacks
+[ ] Budget hacks
+[ ] Purifier-aware recommendations
+[ ] Cooking-aware recommendations
+[ ] Commute recommendations
+[ ] Micro-habits
+[ ] AirShield Readiness
+[ ] Next Best Action
+[ ] Recharts visualization
+[ ] Ask the Air Coach
+[ ] Gemini structured JSON
+[ ] Runtime schema validation
+[ ] Deterministic fallback AI
+[ ] Loading skeletons
+[ ] Error boundary
+[ ] API error handling
+[ ] Mobile responsiveness
+[ ] Accessibility
+[ ] No client-side secrets
+[ ] Clean component architecture
+[ ] services/aqiService.ts
+[ ] services/geminiService.ts
+[ ] Typed models
+[ ] README.md
+[ ] Demo Mode
+[ ] Production-quality UI
+
+Do not sacrifice reliability for flashy features.
+
+If a feature cannot be implemented reliably, prefer a smaller fully working implementation over a broken complex implementation.
+
+The final result should look like a serious climate-health technology product that could realistically be shown to a family, school, employer, municipality, or public-health organization.
+
+BUILD THE APPLICATION NOW.

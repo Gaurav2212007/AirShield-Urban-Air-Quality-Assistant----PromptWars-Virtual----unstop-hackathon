@@ -1,0 +1,8 @@
+{
+  "name": "AirShield — Urban Air Quality Assistant",
+  "description": "Family-focused urban air-quality intelligence assistant turning live Open-Meteo pollution data and hourly forecasts into personalized low-emission routines and indoor air hacks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
