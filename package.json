@@ -1,12 +1,15 @@
 {
-  "name": "react-example",
+  "name": "airshield-urban-air-quality-assistant",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Urban air-quality planning assistant with live Open-Meteo telemetry, deterministic fallback plans, and Gemini-powered Air Coach.",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node server.ts",
     "build": "vite build",
+    "test": "tsx --test tests/airshield.test.ts",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

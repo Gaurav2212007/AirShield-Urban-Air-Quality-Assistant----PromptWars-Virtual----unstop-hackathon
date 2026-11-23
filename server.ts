@@ -222,6 +222,14 @@ async function startServer(): Promise<void> {
   const app = express();
   app.use(express.json({ limit: '512kb' }));
 
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+    next();
+  });
+
   app.get('/api/health', (_req, res) => {
     const hasGeminiKey = Boolean(
       process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY'
@@ -386,7 +394,6 @@ ${sanitizedQuestion}`;
         console.error(`[AirCoach] Error message: ${info.message}`);
         console.error(`[AirCoach] HTTP status: ${info.status}`);
 
-        // Try fallback model only if model not found / unsupported / transient 5xx
         if (info.status === 401 || info.status === 403 || info.status === 429) {
           break;
         }
@@ -416,7 +423,6 @@ ${sanitizedQuestion}`;
   app.post('/api/air-coach', handleAirCoach);
   app.post('/api/coach', handleAirCoach);
 
-  // Ensure no /api/* route ever falls through to Vite SPA HTML
   app.use('/api', (_req, res) => {
     res.status(404).json({ error: 'AirShield API endpoint not found.' });
   });
