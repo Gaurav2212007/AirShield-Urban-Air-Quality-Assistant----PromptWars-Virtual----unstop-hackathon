@@ -51,7 +51,7 @@ flowchart TD
 
 * **Frontend**: React 19, TypeScript, Tailwind CSS v4, Recharts, Lucide React
 * **Backend**: Node.js + Express (`server.ts`) hosting Vite middleware in dev and static `dist/` in production
-* **AI SDK**: `@google/genai` (server-side only, `gemini-4-hydrogen`)
+* **AI SDK**: `@google/genai` (server-side only, `gemini-4-gemini-3.1-flash-lite`)
 * **Air Quality \& Geocoding**: Keyless Open-Meteo Air Quality \& Geocoding APIs
 
 \---
@@ -151,7 +151,7 @@ src/
 Set the following in `.env` or your hosting environment's Secrets panel (see `.env.example`):
 
 ```bash
-GEMINI\\\\\\\_API\\\\\\\_KEY="AQ.Ab8RN6L66sC6N7bifyQoYAdHYGJlEN\_Z3XW5WOBumw4zzjaCjA"
+GEMINI\\\\\\\_API\\\\\\\_KEY="your_gemini_api_key_here"
 ```
 
 *(No Open-Meteo API key is required.)*
@@ -160,18 +160,13 @@ GEMINI\\\\\\\_API\\\\\\\_KEY="AQ.Ab8RN6L66sC6N7bifyQoYAdHYGJlEN\_Z3XW5WOBumw4zzj
 
 ```bash
 npm install
-
 npm run dev       # Starts Express + Vite middleware on http://localhost:3000
-
 npm run lint      # Runs TypeScript type-checking (tsc --noEmit)
-
-npm test          # Runs automated unit \& integration tests (tsx --test)
-
+npm test          # Runs automated unit & integration tests (tsx --test)
 npm run build     # Builds production client bundle into dist/
-
-npm start         # Runs production server (node server.ts) on port 3000```
-
-\---
+npm start         # Runs production server (node server.ts) on port 3000
+```
+---
 
 ## 12\. Assumptions Made
 
